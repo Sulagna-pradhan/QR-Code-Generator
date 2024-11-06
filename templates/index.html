@@ -4,79 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f8f9fa;
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script>
+        // Function to toggle visibility of fields based on QR type
+        function toggleFields() {
+            const qrType = document.querySelector('input[name="qr_type"]:checked').value;
+            
+            // Initially hide both fields
+            document.getElementById("data-field").style.display = "none";
+            document.getElementById("file-field").style.display = "none";
+            
+            // Show "Enter Data" if text, link, email, or phone is selected
+            if (qrType === "text" || qrType === "link" || qrType === "email" || qrType === "phone") {
+                document.getElementById("data-field").style.display = "block";
+            }
+            
+            // Show "File" input only if image or pdf is selected
+            if (qrType === "image" || qrType === "pdf") {
+                document.getElementById("file-field").style.display = "block";
+            }
         }
-        h1 {
-            text-align: center;
-        }
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            width: 100%;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .qr-code {
-            text-align: center;
-            margin-top: 20px;
-        }
-        img {
-            width: 200px;
-            height: 200px;
-        }
-        .download-btn {
-            margin-top: 10px;
-            display: block;
-            text-align: center;
-            background-color: #28a745;
-            padding: 10px;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-    </style>
+    </script>
 </head>
 <body>
-    <h1>QR Code Generator</h1>
-    <div class="container">
-        <form method="POST">
-            <input type="text" name="data" placeholder="Enter text or URL to generate QR code" required>
-            <button type="submit">Generate QR Code</button>
-        </form>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="logo">QR Generator</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="https://github.com/yourusername/qr-code-generator" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
 
-        {% if qr_image %}
-            <div class="qr-code">
-                <h2>Your QR Code:</h2>
-                <img src="{{ qr_image }}" alt="QR Code">
-                <a href="/download" class="download-btn">Download QR Code</a>
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <h1>Generate QR Code</h1>
+            <form action="/" method="POST" enctype="multipart/form-data" class="qr-form">
+                <div class="qr-options">
+                    <label for="text" title="Text"><i class="fas fa-font"></i></label>
+                    <input type="radio" id="text" name="qr_type" value="text" onclick="toggleFields()" checked>
+
+                    <label for="pdf" title="PDF"><i class="fas fa-file-pdf"></i></label>
+                    <input type="radio" id="pdf" name="qr_type" value="pdf" onclick="toggleFields()">
+
+                    <label for="image" title="Image"><i class="fas fa-image"></i></label>
+                    <input type="radio" id="image" name="qr_type" value="image" onclick="toggleFields()">
+
+                    <label for="link" title="Link"><i class="fas fa-link"></i></label>
+                    <input type="radio" id="link" name="qr_type" value="link" onclick="toggleFields()">
+
+                    <label for="email" title="Email"><i class="fas fa-envelope"></i></label>
+                    <input type="radio" id="email" name="qr_type" value="email" onclick="toggleFields()">
+
+                    <label for="phone" title="Phone"><i class="fas fa-phone"></i></label>
+                    <input type="radio" id="phone" name="qr_type" value="phone" onclick="toggleFields()">
+                </div>
+
+                <!-- Enter Data Field (hidden initially) -->
+                <div class="input-field" id="data-field" style="display: none;">
+                    <input type="text" name="data" placeholder="Enter data" required>
+                </div>
+
+                <!-- File Field (hidden initially) -->
+                <div class="file-field" id="file-field" style="display: none;">
+                    <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+
+                <button type="submit">Generate QR Code</button>
+            </form>
+
+            {% if qr_code %}
+            <div class="qr-image">
+                <img src="{{ url_for('static', filename='qr_code.png') }}" alt="Generated QR Code">
+                <br>
+                <a href="{{ url_for('download') }}" class="download-btn">Download QR Code</a>
             </div>
-        {% endif %}
-    </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2>About Us</h2>
+            <p>This website is completely free to use and open source. You can view the source code on our <a href="https://github.com/yourusername/qr-code-generator" target="_blank">GitHub repository</a>. We aim to provide an easy way to generate QR codes for various purposes.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 QR Generator | All Rights Reserved</p>
+        </div>
+    </footer>
 </body>
 </html>
